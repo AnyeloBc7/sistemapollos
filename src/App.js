@@ -19,13 +19,26 @@ const App = () => {
   const [cambio, setCambio] = useState(null);
   const [stockModificar, setStockModificar] = useState({});
   const [ventasDiarias, setVentasDiarias] = useState([]);
+  const [totalVenta, setTotalVenta] = useState(0);
 
   const [nuevoProducto, setNuevoProducto] = useState({
     nombre: "",
     precio: "",
     stock: "",
   });
-   
+  useEffect(() => {
+    let total = 0;
+    productosSeleccionados.forEach((id) => {
+      const producto = productos.find((p) => p.id === id);
+      const cantidad = parseInt(cantidades[id] || 1);
+      if (producto) {
+        total += cantidad * producto.precio;
+      }
+    });
+    setTotalVenta(total);
+  }, [productosSeleccionados, cantidades, productos]); // Agregar 'productos'
+  
+  
   const cargarVentasDiarias = async () => {
     const hoy = new Date().toISOString().split("T")[0]; // Fecha en formato YYYY-MM-DD
     const querySnapshot = await getDocs(collection(db, "Ventas"));
@@ -297,6 +310,7 @@ const limpiarHistorialVentas = async () => {
         value={dineroRecibido}
         onChange={(e) => setDineroRecibido(e.target.value)}
       />
+         <p>Total a pagar: ${totalVenta.toFixed(2)}</p>
          <button onClick={manejarVenta}>🛒 Vender</button>
         {cambio !== null && <p>Cambio a devolver: ${cambio.toFixed(2)}</p>}
 
@@ -345,4 +359,3 @@ const limpiarHistorialVentas = async () => {
 };
 
 export default App;
-
